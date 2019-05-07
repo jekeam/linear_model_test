@@ -1,0 +1,1 @@
+print('5'.replace('[', '').replace(']', '').replace(' ', '').split(','))
