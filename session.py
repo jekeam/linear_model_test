@@ -165,29 +165,30 @@ def str_to_list_int(s: str) -> list:
 
 
 if __name__ == '__main__':
-    x = [27, 67, 5]
-    y = [2.2, 0, 2.2]
+    #x = [38, 90, 87, 90, 109, 69, 29, 88, 36, 31, 21, 14, 34, 9, 59, 31, 33, 9, 13, 41, 17, 11, 19, 26, 53, 19, 11, 3, 97, 9, 99, 33, 91, 24, 17, 101, 11, 5, 43, 31, 25, 1, 15, 3, 8, 28, 32, 29, 59, 2]
+    #y = [2.45, 2.55, 2.5, 2.45, 2.4, 2.3, 2.35, 2.3, 2.25, 0, 2.25, 2.2, 2.3, 2.2, 2.15, 2.13, 2.1, 2.2, 2.18, 2.15, 2.18, 2.17, 2.18, 2.17, 2.15, 2.13, 2.05, 2.12, 2.1, 2.03, 2.1, 2.05, 2.0, 1.98, 1.97, 1.95, 1.93, 1.97, 0, 1.95, 1.93, 1.85, 1.83, 1.78, 1.92, 1.88, 1.95, 1.93, 1.9, 1.87]
 
-    x2 = [59, 6, 11, 18]
-    y2 =[1.7, 1.8, 2.02, 1.9]
+#    x2 = [56, 3, 3, 36, 34, 35, 127, 127, 95, 43, 33, 96, 79, 47, 15, 47, 48, 2, 75, 7, 87, 7, 55, 43, 95, 78, 1]
+ #   y2 = [1.67, 1.7, 1.67, 1.7, 0, 1.7, 1.75, 1.8, 1.85, 1.9, 1.8, 1.85, 1.9, 1.85, 1.9, 1.8, 1.85, 1.8, 1.85, 1.9, 1.95, 2, 0, 2, 2.1, 2.15, 2.2]
 
-    get_vect(x, y, x2, y2)
+  #  get_vect(x, y, x2, y2)
 
-    # df = pd.read_csv('D:\\YandexDisk\\Парсинг\\better\\logs\\07.05.19\\08_05_2019_forks_simple.csv', encoding='utf-8', sep=';')
-    # df = df[df['l'] < 0.995]
-    #
-    # idx = df.groupby(['kof_ol', 'kof_fb', 'name'], sort=False)['live_fork_total'].transform('max') == df['live_fork_total']
-    # df = df[idx]
-    #
-    # for i, r in df.iterrows():
-    #     x = str_to_list_int(r['fb_avg_change'])
-    #     y = str_to_list_float(r['fb_kof_order'])
-    #     x2 = str_to_list_int(r['ol_avg_change'])
-    #     y2 = str_to_list_float(r['ol_kof_order'])
-    #     lf = r['live_fork']
-    #     lft = r['live_fork_total']
-    #     l = (1 - r['l']) * 100
-    #     print(x, y, x2, y2)
-    #     print('proc: {}, t: {}, tt: {}, '.format(l, lf, lft))
-    #     get_vect(x, y, x2, y2)
-    #     print(''.ljust(150, '^'))
+
+    df = pd.read_csv('D:\\YandexDisk\\Парсинг\\better\\06_05_2019_forks_simple.csv', encoding='utf-8', sep=';')
+    df = df[df['l'] < 0.995]
+
+    idx = df.groupby(['kof_ol', 'kof_fb', 'name'], sort=False)['live_fork_total'].transform('max') == df['live_fork_total']
+    df = df[idx]
+
+    for i, r in df.iterrows():
+        x = str_to_list_int(r['fb_avg_change'])
+        y = str_to_list_float(r['fb_kof_order'])
+        x2 = str_to_list_int(r['ol_avg_change'])
+        y2 = str_to_list_float(r['ol_kof_order'])
+        lf = r['live_fork']
+        lft = r['live_fork_total']
+        l = (1 - r['l']) * 100
+        print(x, y, x2, y2)
+        print('proc: {}, t: {}, tt: {}, '.format(l, lf, lft))
+        get_vect(x, y, x2, y2)
+        print(''.ljust(150, '^'))
