@@ -3,6 +3,7 @@ import numpy as np
 from sklearn import linear_model
 import pandas as pd
 
+
 def reject_outliers(data, m=2):
     data = np.asarray(data)
     mean = np.mean(data)
@@ -14,15 +15,23 @@ def reject_outliers(data, m=2):
 
 
 # del zerro values in line
-def del_zerro_in_lean(val_arr: list, line_arr: list):
+
+# del zerro values in line
+def del_zerro_in_line(val_arr: list, line_arr: list):
+    l = val_arr.copy()
+
     if len(val_arr) > len(line_arr):
         val_arr = val_arr[-len(line_arr):]
     elif len(line_arr) > len(val_arr):
         line_arr = line_arr[-len(val_arr):]
-    for idx, val in enumerate(val_arr):
+
+    slip = 0
+    for idx, val in enumerate(l):
         if val == 0:
-            val_arr.pop(idx)
-            line_arr.pop(idx)
+            val_arr.pop(idx - slip)
+            line_arr.pop(idx - slip)
+            slip += 1
+
     return val_arr, line_arr
 
 

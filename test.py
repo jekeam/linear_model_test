@@ -24,8 +24,6 @@ def get_std(data):
 
 # del zerro values in line
 def del_zerro_in_line(val_arr: list, line_arr: list):
-    print('start')
-    print(len(val_arr), len(line_arr), val_arr)
     l = val_arr.copy()
 
     if len(val_arr) > len(line_arr):
@@ -39,9 +37,7 @@ def del_zerro_in_line(val_arr: list, line_arr: list):
             val_arr.pop(idx - slip)
             line_arr.pop(idx - slip)
             slip += 1
-    print(len(list(filter(lambda x: x != 0, val_arr))))
-    print(len(val_arr), len(line_arr), val_arr)
-    print('end')
+
     return val_arr, line_arr
 
 
