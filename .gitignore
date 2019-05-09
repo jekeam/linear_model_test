@@ -115,3 +115,4 @@ dmypy.json
 *.iml
 *.xml
 *.txt
+*.csv
