@@ -3,6 +3,7 @@ import numpy as np
 from sklearn import linear_model
 import matplotlib.pyplot as plt
 import pandas as pd
+import json
 
 
 def reject_outliers(data, m=2):
@@ -165,13 +166,19 @@ def str_to_list_int(s: str) -> list:
 
 
 if __name__ == '__main__':
-    x = [27, 67, 5]
-    y = [2.2, 0, 2.2]
+    with open('C:\\Users\\User\\Documents\\GitHub\\linear_model_test\\09_05_2019_11_id_forks.txt', encoding='utf-8') as f:
+        fl = f.readlines()
 
-    x2 = [59, 6, 11, 18]
-    y2 =[1.7, 1.8, 2.02, 1.9]
+    for r in fl:
+        r = json.loads(r.strip())
+        for r in r.values():
+            x = str_to_list_int(r.get('fonbet', {})['avg_change'])
+            y = str_to_list_float(r.get('fonbet', {})['order_kof'])
+            x2 = str_to_list_int(r.get('olimp', {})['avg_change'])
+            y2 = str_to_list_float(r.get('olimp', {})['order_kof'])
 
-    get_vect(x, y, x2, y2)
+            get_vect(x, y, x2, y2)
+            print(''.rjust(150, '-'))
 
     # df = pd.read_csv('D:\\YandexDisk\\Парсинг\\better\\logs\\07.05.19\\08_05_2019_forks_simple.csv', encoding='utf-8', sep=';')
     # df = df[df['l'] < 0.995]
