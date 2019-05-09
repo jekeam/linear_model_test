@@ -4,6 +4,7 @@ from sklearn import linear_model
 import matplotlib.pyplot as plt
 import pandas as pd
 import json
+import copy
 
 
 def reject_outliers(data, m=2):
@@ -22,15 +23,25 @@ def get_std(data):
 
 
 # del zerro values in line
-def del_zerro_in_lean(val_arr: list, line_arr: list):
+def del_zerro_in_line(val_arr: list, line_arr: list):
+    print('start')
+    print(len(val_arr), len(line_arr), val_arr)
+    l = val_arr.copy()
+
     if len(val_arr) > len(line_arr):
         val_arr = val_arr[-len(line_arr):]
     elif len(line_arr) > len(val_arr):
         line_arr = line_arr[-len(val_arr):]
-    for idx, val in enumerate(val_arr):
+
+    slip = 0
+    for idx, val in enumerate(l):
         if val == 0:
-            val_arr.pop(idx)
-            line_arr.pop(idx)
+            val_arr.pop(idx - slip)
+            line_arr.pop(idx - slip)
+            slip += 1
+    print(len(list(filter(lambda x: x != 0, val_arr))))
+    print(len(val_arr), len(line_arr), val_arr)
+    print('end')
     return val_arr, line_arr
 
 
@@ -113,14 +124,14 @@ def get_vect(x, y, x2, y2):
 
     x = x[-len(x2):]
     y = y[-len(x2):]
-    y, x = del_zerro_in_lean(y, x)
+    y, x = del_zerro_in_line(y, x)
     x = np.asarray(x).reshape(len(x), 1)
     y = np.asarray(y).reshape(len(y), 1)
     regr.fit(x, y)
 
     x2 = x2[-len(x):]
     y2 = y2[-len(x):]
-    y2, x2 = del_zerro_in_lean(y2, x2)
+    y2, x2 = del_zerro_in_line(y2, x2)
     y2 = np.asarray(y2).reshape(len(y2), 1)
     x2 = np.asarray(x2).reshape(len(x2), 1)
     regr2.fit(x2, y2)
