@@ -167,7 +167,13 @@ def str_to_list_int(s: str) -> list:
 
 if __name__ == '__main__':
     is_id = None
-    is_id = 1557317452
+    is_id = [1557322506,
+             1557352676,
+             1557321737,
+             1557329583,
+             1557327925,
+             1557341977,
+             1557332068, ]
     with open('C:\\Users\\User\\Documents\\GitHub\\linear_model_test\\09_05_2019_11_id_forks.txt', encoding='utf-8') as f:
         fl = f.readlines()
 
@@ -178,7 +184,7 @@ if __name__ == '__main__':
     for r in fl:
         r = json.loads(r.strip())
         for id, r in r.items():
-            if (is_id and str(is_id) == str(id)) or is_id is None:
+            if (is_id and id in is_id) or is_id is None:
                 x = str_to_list_int(r.get('fonbet', {})['avg_change'])
                 y = str_to_list_float(r.get('fonbet', {})['order_kof'])
                 x2 = str_to_list_int(r.get('olimp', {})['avg_change'])
