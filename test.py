@@ -184,7 +184,7 @@ if __name__ == '__main__':
     for r in fl:
         r = json.loads(r.strip())
         for id, r in r.items():
-            if (is_id and id in is_id) or is_id is None:
+            if (is_id and int(id) in is_id) or is_id is None:
                 x = str_to_list_int(r.get('fonbet', {})['avg_change'])
                 y = str_to_list_float(r.get('fonbet', {})['order_kof'])
                 x2 = str_to_list_int(r.get('olimp', {})['avg_change'])
