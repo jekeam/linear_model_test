@@ -15,6 +15,7 @@ def reject_outliers(data):
     #     std = mean
     # else:
     #     std = np.std(data)
+    print('mean: {}, std: {}, std*noize: {}'.format(np.mean(data), np.std(data), noize * np.std(data)))
     return data[abs(data - np.mean(data)) <= noize * np.std(data)].tolist()
 
 
@@ -103,9 +104,12 @@ def get_vect(x, y, x2, y2):
 
     p = list(zip(reversed(y), reversed(y2)))
 
-    live = 40
-    x_predict1 = x[-1] + live
-    x_predict2 = x2[-1] + live
+    # live = 140
+    # x_predict1 = x[-1] + live
+    # x_predict2 = x2[-1] + live
+    x_predict1 = x[-1] + x_max
+    x_predict2 = x2[-1] + x2_max
+
     #
     # print('x_predict1: {}->{}'.format(x[-1], x_predict1))
     # print('x_predict2: {}->{}'.format(x2[-1], x_predict2))
@@ -138,6 +142,8 @@ def get_vect(x, y, x2, y2):
     # x = x[-len(x2):]
     # y = y[-len(x2):]
     y, x = del_zerro(y, x)
+    y_for_check_noize = np.asarray(y).reshape(len(y), 1)
+    x_for_check_noize = np.asarray(x).reshape(len(x), 1)
     # plt.scatter(x, y, color='blue', marker=',')
     y, x = del_noize(y, x)
     px, py = x[0], y[0]
@@ -150,6 +156,8 @@ def get_vect(x, y, x2, y2):
     # y2 = y2[-len(x):]
     y2, x2 = del_zerro(y2, x2)
     # plt.scatter(x2, y2, color='red', marker=',')
+    y2_for_check_noize = np.asarray(y2).reshape(len(y2), 1)
+    x2_for_check_noize = np.asarray(x2).reshape(len(x2), 1)
     y2, x2 = del_noize(y2, x2)
     ppx, ppy = x2[0], y2[0]
     ppx2, ppy2 = x2[-1], y2[-1]
@@ -157,13 +165,40 @@ def get_vect(x, y, x2, y2):
     x2 = np.asarray(x2).reshape(len(x2), 1)
     regr2.fit(x2, y2)
 
+    check_noize_up = zip(y_for_check_noize, regr.predict(x_for_check_noize) + get_std(y))
+    check_noize_down = zip(y_for_check_noize, regr.predict(x_for_check_noize) - get_std(y))
+    noize1 = 0
+    for n1 in check_noize_up:
+        if n1[0].tolist()[0] > n1[1].tolist()[0]:
+            noize1 = n1[0].tolist()[0]
+            break
+    if not noize1:
+        for n1 in check_noize_down:
+            if n1[0].tolist()[0] < n1[1].tolist()[0]:
+                noize1 = n1[0].tolist()[0]
+                break
+
     plt.plot(x_save, regr.predict(x_save) + get_std(y), color='blue', linestyle='dotted', markersize=1)
     plt.plot(x_save, regr.predict(x_save), color='black', linestyle='dashed', markersize=1)
     plt.plot(x_save, regr.predict(x_save) - get_std(y), color='blue', linestyle='dotted', markersize=1)
 
-    plt.plot(x2_save, regr2.predict(x2_save) - get_std(y2), color='red', linestyle='dotted', markersize=1)
-    plt.plot(x2_save, regr2.predict(x2_save), color='black', linestyle='dashed', markersize=1)
+    check_noize_up2 = zip(y2_for_check_noize, regr2.predict(x2_for_check_noize) + get_std(y2))
+    check_noize_down2 = zip(y2_for_check_noize, regr2.predict(x2_for_check_noize) - get_std(y2))
+
+    noize2 = 0
+    for n2 in check_noize_up2:
+        if n2[0].tolist()[0] > n2[1].tolist()[0]:
+            noize2 = n2[0].tolist()[0]
+            break
+    if not noize2:
+        for n2 in check_noize_down2:
+            if n2[0].tolist()[0] < n2[1].tolist()[0]:
+                noize2 = n2[0].tolist()[0]
+                break
+
     plt.plot(x2_save, regr2.predict(x2_save) + get_std(y2), color='red', linestyle='dotted', markersize=1)
+    plt.plot(x2_save, regr2.predict(x2_save), color='black', linestyle='dashed', markersize=1)
+    plt.plot(x2_save, regr2.predict(x2_save) - get_std(y2), color='red', linestyle='dotted', markersize=1)
 
     kof_predict11 = round(float(regr.predict([[x_max]])[0]), 2)
     kof_predict21 = round(float(regr.predict([[x_predict1]])[0]), 2)
@@ -177,7 +212,7 @@ def get_vect(x, y, x2, y2):
         vect_fb = 'STAT'
     else:
         vect_fb = 'DOWN'
-    print('Fonbet: {}, {}->{}. {}'.format(vect_fb, kof_predict11, kof_predict21, kof_cur1))
+    print('Fonbet: {}, {}->{}. {}. Noize: {}'.format(vect_fb, kof_predict11, kof_predict21, kof_cur1, noize1))
 
     if kof_predict22 > kof_predict12:
         vect_ol = 'UP'
@@ -185,7 +220,7 @@ def get_vect(x, y, x2, y2):
         vect_ol = 'STAT'
     else:
         vect_ol = 'DOWN'
-    print('Olimp: {}, {}->{}. {}'.format(vect_ol, kof_predict12, kof_predict22, kof_cur2))
+    print('Olimp: {}, {}->{}. {}. Noize: {}'.format(vect_ol, kof_predict12, kof_predict22, kof_cur2, noize2))
     plt.show()
 
 
@@ -199,14 +234,18 @@ def str_to_list_int(s: str) -> list:
 
 if __name__ == '__main__':
     is_id = None
-    # is_id = [1557425485,
-    #          1557404597,
-    #          1557432854,
-    #          1557412859,
-    #          1557438032,
-    #          1557421879,
-    #          1557430647]
-    is_id = [1557412859]
+    is_id = [
+        # 1557409557,
+        # 1557431025,
+        # 1557429787,
+        # 1557432044,
+        # 1557428937,
+        # 1557412147,
+        1557428848,
+        # 1557430033,
+        # 1557425950,
+        # 1557417650
+             ]
     with open('C:\\Users\\User\\Documents\\GitHub\\linear_model_test\\10_05_2019_11_id_forks.txt', encoding='utf-8') as f:
         fl = f.readlines()
 
