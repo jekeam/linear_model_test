@@ -4,26 +4,41 @@ from sklearn import linear_model
 import matplotlib.pyplot as plt
 import pandas as pd
 import json
-import copy
+
+noize = 2
 
 
-def reject_outliers(data, m=2):
+def reject_outliers(data):
     data = np.asarray(data)
     # mean = np.mean(data)
     # if np.std(data) == 0:
     #     std = mean
     # else:
     #     std = np.std(data)
-    return data[abs(data - np.mean(data)) <= m * np.std(data)].tolist()
+    return data[abs(data - np.mean(data)) <= noize * np.std(data)].tolist()
 
 
 def get_std(data):
     data = np.asarray(data)
-    return np.std(data).tolist()
+    return np.std(data).tolist() * noize
+
+
+def del_noize(val_arr: list, line_arr: list):
+    l = val_arr.copy()
+    val_white = list(set(reject_outliers(l)))
+    if val_white and l:
+        slip = 0
+        for idx, val in enumerate(l):
+            if val not in val_white:
+                val_arr.pop(idx - slip)
+                line_arr.pop(idx - slip)
+                slip += 1
+
+    return val_arr, line_arr
 
 
 # del zerro values in line
-def del_zerro_in_line(val_arr: list, line_arr: list):
+def del_zerro(val_arr: list, line_arr: list):
     l = val_arr.copy()
 
     if len(val_arr) > len(line_arr):
@@ -89,6 +104,12 @@ def get_vect(x, y, x2, y2):
     p = list(zip(reversed(y), reversed(y2)))
 
     live = 40
+    x_predict1 = x[-1] + live
+    x_predict2 = x2[-1] + live
+    #
+    # print('x_predict1: {}->{}'.format(x[-1], x_predict1))
+    # print('x_predict2: {}->{}'.format(x2[-1], x_predict2))
+
     for k in reversed(p):
         k1, k2 = k[0], k[1]
         if k1 and k2:
@@ -109,36 +130,40 @@ def get_vect(x, y, x2, y2):
                     plt.plot([n3, n3], [min(k1, k2) + 0.05, max(k1, k2) - 0.05], color=color, markersize=1)
                     # live += 1
         n3 += 1
-
-    x_predict1 = x[-1] + live
-    x_predict2 = x2[-1] + live
-    # print('x_predict1: {}->{}'.format(x[-1], live))
-    # print('x_predict2: {}->{}'.format(x2[-1], live))
-
     plt.scatter(x, y, color='blue', marker=',')
     plt.scatter(x2, y2, color='red', marker=',')
+    x_save, y_save = np.asarray(x).reshape(len(x), 1), np.asarray(y).reshape(len(y), 1)
+    x2_save, y2_save = np.asarray(x2).reshape(len(x2), 1), np.asarray(y2).reshape(len(y2), 1)
 
-    x = x[-len(x2):]
-    y = y[-len(x2):]
-    y, x = del_zerro_in_line(y, x)
+    # x = x[-len(x2):]
+    # y = y[-len(x2):]
+    y, x = del_zerro(y, x)
+    # plt.scatter(x, y, color='blue', marker=',')
+    y, x = del_noize(y, x)
+    px, py = x[0], y[0]
+    px2, py2 = x[-1], y[-1]
     x = np.asarray(x).reshape(len(x), 1)
     y = np.asarray(y).reshape(len(y), 1)
     regr.fit(x, y)
 
-    x2 = x2[-len(x):]
-    y2 = y2[-len(x):]
-    y2, x2 = del_zerro_in_line(y2, x2)
+    # x2 = x2[-len(x):]
+    # y2 = y2[-len(x):]
+    y2, x2 = del_zerro(y2, x2)
+    # plt.scatter(x2, y2, color='red', marker=',')
+    y2, x2 = del_noize(y2, x2)
+    ppx, ppy = x2[0], y2[0]
+    ppx2, ppy2 = x2[-1], y2[-1]
     y2 = np.asarray(y2).reshape(len(y2), 1)
     x2 = np.asarray(x2).reshape(len(x2), 1)
     regr2.fit(x2, y2)
 
-    plt.plot(x, regr.predict(x) + get_std(y), color='blue', linestyle='dotted', markersize=1)
-    plt.plot(x, regr.predict(x), color='black', linestyle='dashed', markersize=1)
-    plt.plot(x, regr.predict(x) - get_std(y), color='blue', linestyle='dotted', markersize=1)
+    plt.plot(x_save, regr.predict(x_save) + get_std(y), color='blue', linestyle='dotted', markersize=1)
+    plt.plot(x_save, regr.predict(x_save), color='black', linestyle='dashed', markersize=1)
+    plt.plot(x_save, regr.predict(x_save) - get_std(y), color='blue', linestyle='dotted', markersize=1)
 
-    plt.plot(x2, regr2.predict(x2) - get_std(y2), color='red', linestyle='dotted', markersize=1)
-    plt.plot(x2, regr2.predict(x2), color='black', linestyle='dashed', markersize=1)
-    plt.plot(x2, regr2.predict(x2) + get_std(y2), color='red', linestyle='dotted', markersize=1)
+    plt.plot(x2_save, regr2.predict(x2_save) - get_std(y2), color='red', linestyle='dotted', markersize=1)
+    plt.plot(x2_save, regr2.predict(x2_save), color='black', linestyle='dashed', markersize=1)
+    plt.plot(x2_save, regr2.predict(x2_save) + get_std(y2), color='red', linestyle='dotted', markersize=1)
 
     kof_predict11 = round(float(regr.predict([[x_max]])[0]), 2)
     kof_predict21 = round(float(regr.predict([[x_predict1]])[0]), 2)
@@ -174,14 +199,15 @@ def str_to_list_int(s: str) -> list:
 
 if __name__ == '__main__':
     is_id = None
-    is_id = [1557322506,
-             1557352676,
-             1557321737,
-             1557329583,
-             1557327925,
-             1557341977,
-             1557332068, ]
-    with open('C:\\Users\\User\\Documents\\GitHub\\linear_model_test\\09_05_2019_11_id_forks.txt', encoding='utf-8') as f:
+    # is_id = [1557425485,
+    #          1557404597,
+    #          1557432854,
+    #          1557412859,
+    #          1557438032,
+    #          1557421879,
+    #          1557430647]
+    is_id = [1557412859]
+    with open('C:\\Users\\User\\Documents\\GitHub\\linear_model_test\\10_05_2019_11_id_forks.txt', encoding='utf-8') as f:
         fl = f.readlines()
 
     min_profit = 0
